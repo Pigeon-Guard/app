@@ -1,6 +1,6 @@
 # Pigeon Guard
 
-![Tests](https://github.com/YOUR_USERNAME/pigeon-guard/workflows/Run%20Unit%20Tests/badge.svg)
+![Tests](https://github.com/pigeon-guard/app/actions/workflows/ci.yml/badge.svg)
 
 Detecting Pigeons in Images using Machine Learning
 
@@ -24,31 +24,46 @@ Then edit `.env` with your settings. See `.env.example` for all available option
 - `PGUARD_PUSHOVER_API_TOKEN`: Your Pushover API token
 - See `.env.example` for complete list
 
-## Run detection on single image
+## Usage
+
+**Detection on single image**
+
+```
+docker run \                                  
+    -v $(pwd)/models:/app/models \
+    -v $(pwd)/.env.example:/app/.env \
+    -v $HOME/Downloads:/data \
+    ghcr.io/pigeon-guard/app:latest --image /data/test-image.jpg
+```
+
+**Continuous detection in video stream**
+
+```
+docker run \                                  
+    -v $(pwd)/models:/app/models \
+    -v $(pwd)/.env.example:/app/.env \
+    ghcr.io/pigeon-guard/app:latest
+```
+
+## Development
+
+**Detection on single image**
 
 ```shell
 ./app.sh --image <path>
 ```
 
-## Run continuous detection in interactive mode
+**Continuous detection in interactive mode**
 
 ```shell
 ./app.sh
 ```
 
-## Run continuous detection in background
-
-```shell
-nohup ./app.sh --daemon &
-```
-
-## Using custom environment file
+**Custom environment file**
 
 ```shell
 ./app.sh --env-file .env.production
 ```
-
-## Development
 
 ### Running Tests
 
