@@ -226,6 +226,6 @@ __marimo__/
 .idea/
 
 # Application
-model/
+models/
 detections/
 logs/

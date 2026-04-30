@@ -21,7 +21,7 @@ class Config:
         load_dotenv(env_file, override=True)
 
         # Model
-        self.model_path = os.getenv('PGUARD_MODEL_PATH', 'model/best.pt')
+        self.model_path = os.getenv('PGUARD_MODEL_PATH', 'models/best.pt')
         self.confidence_threshold = _getenv_float('PGUARD_CONFIDENCE_THRESHOLD', '0.33')
         self.device = os.getenv('PGUARD_DEVICE', 'auto')
 
