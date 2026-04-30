@@ -2,7 +2,8 @@ import asyncio
 import logging
 import os
 
-from app import Application, Config
+from app.application import Application
+from app.config import Config
 
 def _setup_logging(cfg: Config):
     """Setup logging"""
