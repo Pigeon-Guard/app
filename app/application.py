@@ -2,8 +2,9 @@
 import logging
 import signal
 import sys
+from typing import Optional
 
-from app.event import EventBus
+from app.event import EventBus, DetectionEvent
 from app.input import VideoStreamObserver
 from app.detector import Detector
 from app.event_handler import DetectionEventHandler, NotificationEventHandler
@@ -68,3 +69,18 @@ class Application:
             'stream_url': self.config.stream_url,
             'model_path': self.config.model_path
         }
+
+    async def detect(self, frame) -> Optional[DetectionEvent]:
+        """
+        Run detection on a single image.
+
+        Args:
+            frame: The image frame to analyze
+
+        Returns:
+            dict with keys:
+                - is_pigeon: bool
+                - confidence: float
+        """
+        # Don't save single image detections to disk
+        return await self.detector.detect(frame, save_image=False)

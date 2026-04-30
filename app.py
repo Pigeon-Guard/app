@@ -1,6 +1,8 @@
 import asyncio
 import logging
 import os
+import cv2
+from pathlib import Path
 
 from app.application import Application
 from app.config import Config
@@ -59,12 +61,40 @@ async def run_interactive(app: Application):
     await task
 
 
+async def run_image_detection(app: Application, image_path: str):
+    """Run detection on a single image"""
+    logger = logging.getLogger(__name__)
+
+    # Load image
+    if not Path(image_path).exists():
+        logger.error(f"Image file not found: {image_path}")
+        print(f"Error: Image file not found: {image_path}")
+        return
+
+    frame = cv2.imread(image_path)
+    if frame is None:
+        logger.error(f"Failed to load image: {image_path}")
+        print(f"Error: Failed to load image: {image_path}")
+        return
+
+    logger.info(f"Processing image: {image_path}")
+
+    # Run detection
+    detection = await app.detect(frame)
+
+    if detection:
+        print(f"✓ Pigeon detected with {detection.confidence:.2%} confidence")
+    else:
+        print(f"✗ No pigeon detected")
+
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Real-time Pigeon Detection")
     parser.add_argument("--env-file", default=".env", help="Environment file path (default: .env)")
     parser.add_argument("--daemon", action="store_true", help="Run as daemon")
+    parser.add_argument("--image", help="Run detection on a single image file")
 
     args = parser.parse_args()
 
@@ -76,7 +106,9 @@ if __name__ == "__main__":
     app = Application(config)
 
     try:
-        if args.daemon:
+        if args.image:
+            asyncio.run(run_image_detection(app, args.image))
+        elif args.daemon:
             asyncio.run(run_daemon(app))
         else:
             asyncio.run(run_interactive(app))

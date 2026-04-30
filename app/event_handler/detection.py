@@ -18,8 +18,9 @@ class DetectionEventHandler:
 
     async def _on_detection(self, event: DetectionEvent):
         """Handle detection events by saving images"""
-        # Save detection image
-        self._save_image(event.frame, event.confidence, event.timestamp)
+        # Only save if the event indicates it should be saved
+        if event.save_image:
+            self._save_image(event.frame, event.confidence, event.timestamp)
 
     def _save_image(self, frame, confidence, timestamp):
         """Save detection image to disk"""

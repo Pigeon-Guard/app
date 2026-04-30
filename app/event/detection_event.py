@@ -14,3 +14,4 @@ class DetectionEvent:
     height: int
     frame_number: int
     timestamp: datetime
+    save_image: bool = True  # Whether to save the detection image

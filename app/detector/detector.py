@@ -1,6 +1,9 @@
 """Pigeon detection component"""
 import logging
 import time
+from datetime import datetime
+from typing import Optional
+
 from ultralytics import YOLO
 
 from app.event import EventBus, FrameEvent, DetectionEvent
@@ -72,14 +75,9 @@ class Detector:
             #     return
 
             # Run detection
-            confidence, x, y, width, height = self.model.predict(event.frame)
-            is_pigeon = confidence > self.config.confidence_threshold
+            detection = await self.detect(event.frame, event.frame_number, save_image=self.config.save_detections)
 
-            if self.config.debug_mode:
-                self.logger.debug(f"Detection confidence: {confidence:.4f}, threshold: {self.config.confidence_threshold}")
-
-            # Check cooldown and emit detection event if pigeon detected
-            if is_pigeon:
+            if detection:
                 current_time = time.time()
 
                 # Check cooldown period
@@ -92,21 +90,65 @@ class Detector:
                 self.detection_count += 1
 
                 self.logger.info(
-                    f"Pigeon detected! Confidence: {confidence:.2%}, "
+                    f"Pigeon detected! Confidence: {detection.confidence:.2%}, "
                     f"Total detections: {self.detection_count}"
                 )
 
+                await self.event_bus.publish(detection)
+
+        except Exception as e:
+            self.logger.error(f"Detection error: {e}")
+
+    async def detect(self, frame, frame_number: int = 0, save_image: bool = True) -> Optional[DetectionEvent]:
+        """
+        Run detection on a single frame/image.
+
+        Args:
+            frame: The image frame to analyze
+            frame_number: Optional frame number for tracking
+            save_image: Whether to save the detection image (default: True)
+
+        Returns:
+            dict with keys:
+                - is_pigeon: bool
+                - confidence: float
+                - x, y, width, height: int (bounding box)
+                - detection_event: DetectionEvent if pigeon detected, else None
+        """
+        try:
+            # Run detection
+            confidence, x, y, width, height = 0.0, -1, -1, -1, -1
+
+            # TODO: ultralytics YOLO specific
+            results = self.model.predict(frame)
+            if results and len(results) and len(results[0].boxes):
+                box = results[0].boxes[0]
+                confidence = box.conf[0]
+                x, y, width, height = box.xywh[0]
+
+            is_pigeon = confidence > self.config.confidence_threshold
+
+            if self.config.debug_mode:
+                self.logger.debug(f"Detection confidence: {confidence:.4f}, threshold: {self.config.confidence_threshold}")
+
+            detection_event = None
+            if is_pigeon:
+                timestamp = datetime.now()
+
                 detection_event = DetectionEvent(
-                    frame=event.frame,
+                    frame=frame,
                     confidence=confidence,
                     x=x,
                     y=y,
                     width=width,
                     height=height,
-                    frame_number=event.frame_number,
-                    timestamp=event.timestamp
+                    frame_number=frame_number,
+                    timestamp=timestamp,
+                    save_image=save_image
                 )
-                await self.event_bus.publish(detection_event)
+
+            return detection_event
 
         except Exception as e:
             self.logger.error(f"Detection error: {e}")
+            raise
