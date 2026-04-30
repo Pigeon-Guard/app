@@ -1,5 +1,7 @@
 # Pigeon Guard
 
+![Tests](https://github.com/YOUR_USERNAME/pigeon-guard/workflows/Run%20Unit%20Tests/badge.svg)
+
 Detecting Pigeons in Images using Machine Learning
 
 ## Configuration
@@ -45,3 +47,38 @@ nohup ./app.sh --daemon &
 ```shell
 ./app.sh --env-file .env.production
 ```
+
+## Development
+
+### Running Tests
+
+Run the unit tests:
+
+```shell
+source .venv/bin/activate
+python3 -m unittest discover tests
+```
+
+Run tests with verbose output:
+
+```shell
+python3 -m unittest discover -v tests
+```
+
+Run a specific test file:
+
+```shell
+python3 -m unittest tests.test_event_bus
+```
+
+### Test Coverage
+
+The project includes comprehensive unit tests for:
+- Event bus system
+- Event handlers (detection and notification)
+- Video stream observer
+- Pushover notifier
+
+Tests use mocks for external dependencies (cv2, requests, file I/O) and are fully automated via GitHub Actions.
+
+See [tests/README.md](tests/README.md) for more details.
