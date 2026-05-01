@@ -7,7 +7,7 @@ from typing import Optional
 from ultralytics import YOLO
 
 from app.event import EventBus, FrameEvent, DetectionEvent
-# from detector.hailo import HailoHEFModel
+from app.hailo import HEFModel
 
 class Detector:
     """Detects pigeons in frames and emits detection events"""
@@ -32,8 +32,7 @@ class Detector:
             if self.config.model_path.endswith(".pt"):
                 self.model = YOLO(self.config.model_path)
             elif self.config.model_path.endswith(".hef"):
-                raise NotImplementedError("*.hef support is not implemented yet")
-                # TODO: self.model = HailoHEFModel(self.config.model_path)
+                self.model = HEFModel(self.config.model_path)
             else:
                 raise ValueError(f"Invalid model file format: {self.config.model_path}")
             self.logger.info(f"Model loaded: {self.config.model_path}")
