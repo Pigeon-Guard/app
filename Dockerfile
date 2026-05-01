@@ -1,10 +1,13 @@
-FROM python:3.12-slim
+ARG HAILORT_VERSION
+ARG PYTHON_VERSION
+
+FROM ghcr.io/pigeon-guard/hailort:${HAILORT_VERSION}-python${PYTHON_VERSION}
 
 # Set working directory
 WORKDIR /app
 
 # Install system dependencies for OpenCV and other packages
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-opencv \
     && rm -rf /var/lib/apt/lists/* # delete package index metadata files
 
