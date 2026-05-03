@@ -1,9 +1,6 @@
 import cv2
 import logging
-import torch
 import numpy as np
-from ultralytics.utils import ops
-from ultralytics.utils.nms import non_max_suppression
 
 try:
     import hailo_platform as hpf

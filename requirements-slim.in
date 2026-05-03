@@ -1,0 +1,7 @@
+psutil
+python-dotenv
+pyyaml
+requests
+opencv-python-headless
+polars
+numpy

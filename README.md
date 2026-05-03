@@ -45,7 +45,7 @@ docker run --rm \
     -v $(pwd)/models:/app/models \
     -v $(pwd)/.env.hailo:/app/.env \
     -v $(pwd)/data:/data \
-    ghcr.io/pigeon-guard/app:latest --image /data/test-image.jpg
+    ghcr.io/pigeon-guard/app:latest-slim --image /data/test-image.jpg
 ```
 
 **Continuous detection in video stream**
@@ -61,7 +61,7 @@ docker run -d --restart always \
     -v $(pwd)/detections:/app/detections \
     -v $(pwd)/logs:/app/logs \
     -v $(pwd)/.env.hailo:/app/.env \
-    ghcr.io/pigeon-guard/app:latest
+    ghcr.io/pigeon-guard/app:latest-slim
 ```
 
 ## Other Systems

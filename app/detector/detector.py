@@ -3,11 +3,7 @@ import logging
 import time
 from datetime import datetime
 from typing import Optional
-
-from ultralytics import YOLO
-
 from app.event import EventBus, FrameEvent, DetectionEvent
-from app.hailo import HEFModel
 
 class Detector:
     """Detects pigeons in frames and emits detection events"""
@@ -29,10 +25,14 @@ class Detector:
     def _load_model(self):
         """Load the pigeon detection model"""
         try:
-            if self.config.model_path.endswith(".pt"):
-                self.model = YOLO(self.config.model_path)
-            elif self.config.model_path.endswith(".hef"):
+            if self.config.model_path.endswith(".hef"):
+                from app.hailo import HEFModel
                 self.model = HEFModel(self.config.model_path)
+
+            elif self.config.model_path.endswith(".pt"):
+                from ultralytics import YOLO
+                self.model = YOLO(self.config.model_path)
+
             else:
                 raise ValueError(f"Invalid model file format: {self.config.model_path}")
             self.logger.info(f"Model loaded: {self.config.model_path}")

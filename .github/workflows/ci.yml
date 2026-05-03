@@ -20,10 +20,11 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
+        cache-dependency-path: requirements-dev.txt
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
     - name: Run unit tests
       run: |
         python -m unittest discover -v tests
@@ -46,6 +47,14 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        variant: [slim,prod]
+        include:
+          - variant: slim
+            tag_suffix: '-slim'
+          - variant: prod
+            tag_suffix: ''
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
@@ -65,7 +74,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build and push image
+      - name: Build and push prod image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -74,5 +83,6 @@ jobs:
           build-args: |
             HAILORT_VERSION=${{ env.HAILORT_VERSION }}
             PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+            IMAGE_VARIANT=${{ matrix.variant }}
           push: true
-          tags: ghcr.io/${{ env.GITHUB_REPOSITORY_LC }}:latest
+          tags: ghcr.io/${{ env.GITHUB_REPOSITORY_LC }}:latest${{ matrix.tag_suffix }}
