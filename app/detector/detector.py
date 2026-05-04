@@ -118,12 +118,20 @@ class Detector:
             # Run detection
             confidence, x, y, width, height = 0.0, -1, -1, -1, -1
 
-            # TODO: ultralytics YOLO specific
             results = self.model.predict(frame)
-            if results and len(results) and len(results[0].boxes):
-                box = results[0].boxes[0]
-                confidence = box.conf[0]
-                x, y, width, height = box.xywh[0]
+            if results and len(results):
+                result = results[0]
+
+                if result['bbox']:
+                    # Hailo yolov8n
+                    confidence = result['confidence']
+                    x, y, width, height = result['bbox']
+                
+                elif result.boxes:
+                    # ultralytics YOLO
+                    box = result.boxes[0]
+                    confidence = box.conf[0]
+                    x, y, width, height = box.xywh[0]
 
             is_pigeon = confidence > self.config.confidence_threshold
 
