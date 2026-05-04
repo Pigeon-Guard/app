@@ -244,10 +244,10 @@ class HEFModel:
                             })
                 
                 else:
-                    self.logger.debug(f"Unexpected output type: {type(output_data)}")
+                    logging.debug(f"Unexpected output type: {type(output_data)}")
             
             except Exception as e:
-                self.logger.error(f"Error processing output '{output_name}': {e}")
+                logging.error(f"Error processing output '{output_name}': {e}")
                 import traceback
                 traceback.print_exc()
                 continue
@@ -285,7 +285,7 @@ class HEFModel:
             return detections
             
         except Exception as e:
-            self.logger.error(f"Hailo inference error: {e}")
+            logging.error(f"Hailo inference error: {e}")
             import traceback
             traceback.print_exc()
             return []
