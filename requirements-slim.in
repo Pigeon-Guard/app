@@ -2,6 +2,7 @@ psutil
 python-dotenv
 pyyaml
 requests
-opencv-python-headless
+opencv-python-headless~=4.10.0
 polars
-numpy
+# IMPORTANT: numpy<2.0 is required for Hailo Runtime!
+numpy<2.0

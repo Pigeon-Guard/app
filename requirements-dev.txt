@@ -62,7 +62,7 @@ networkx==3.6.1
     # via
     #   -r requirements-prod.txt
     #   torch
-numpy==2.4.4
+numpy==1.26.4
     # via
     #   -r requirements-prod.txt
     #   contourpy
@@ -72,7 +72,7 @@ numpy==2.4.4
     #   torchvision
     #   ultralytics
     #   ultralytics-thop
-opencv-python==4.13.0.92
+opencv-python==4.11.0.86
     # via
     #   -r requirements-prod.txt
     #   ultralytics

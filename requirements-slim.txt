@@ -10,11 +10,11 @@ charset-normalizer==3.4.7
     # via requests
 idna==3.13
     # via requests
-numpy==2.4.4
+numpy==1.26.4
     # via
     #   -r requirements-slim.in
     #   opencv-python-headless
-opencv-python-headless==4.13.0.92
+opencv-python-headless==4.10.0.84
     # via -r requirements-slim.in
 polars==1.40.1
     # via -r requirements-slim.in
