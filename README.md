@@ -37,13 +37,9 @@ Then edit `.env` with your settings. See `.env.example` for all available option
 
 ```
 docker run --rm \
-    --network host \
     --device /dev/hailo0:/dev/hailo0 \
-    -v /usr/lib:/usr/lib:ro \
-    -v /lib:/lib:ro \
-    -v /usr/share:/usr/share:ro \
-    -v $(pwd)/models:/app/models \
     -v $(pwd)/.env.hailo:/app/.env \
+    -v $(pwd)/models:/app/models \
     -v $(pwd)/data:/data \
     ghcr.io/pigeon-guard/app:latest-slim --image /data/test-image.jpg
 ```
@@ -51,16 +47,12 @@ docker run --rm \
 **Continuous detection in video stream**
 
 ```
-docker run -d --restart always \
-    --network host \
+docker run -d --restart always --name pguard \
     --device /dev/hailo0:/dev/hailo0 \
-    -v /usr/lib:/usr/lib:ro \
-    -v /lib:/lib:ro \
-    -v /usr/share:/usr/share:ro \
+    -v $(pwd)/.env.hailo:/app/.env \
     -v $(pwd)/models:/app/models \
     -v $(pwd)/detections:/app/detections \
     -v $(pwd)/logs:/app/logs \
-    -v $(pwd)/.env.hailo:/app/.env \
     ghcr.io/pigeon-guard/app:latest-slim
 ```
 
@@ -70,8 +62,8 @@ docker run -d --restart always \
 
 ```
 docker run --rm \
-    -v $(pwd)/models:/app/models \
     -v $(pwd)/.env:/app/.env \
+    -v $(pwd)/models:/app/models \
     -v $HOME/Downloads:/data \
     ghcr.io/pigeon-guard/app:latest --image /data/test-image.jpg
 ```
@@ -79,11 +71,11 @@ docker run --rm \
 **Continuous detection in video stream**
 
 ```
-docker run -d --restart always \
+docker run -d --restart always --name pguard \
+    -v $(pwd)/.env:/app/.env \
     -v $(pwd)/models:/app/models \
     -v $(pwd)/detections:/app/detections \
     -v $(pwd)/logs:/app/logs \
-    -v $(pwd)/.env:/app/.env \
     ghcr.io/pigeon-guard/app:latest
 ```
 
