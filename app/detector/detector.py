@@ -13,7 +13,8 @@ class Detector:
         self.event_bus = event_bus
         self.logger = logging.getLogger(__name__)
         self.model = None
-        self.last_detection_time = 0
+        self.cooldown_end_time = 0
+        self.warmup_end_time = 0
         self.detection_count = 0
 
         # Subscribe to frame events
@@ -50,11 +51,21 @@ class Detector:
                 current_time = time.time()
 
                 # Check cooldown period
-                if current_time - self.last_detection_time < self.config.cooldown_seconds:
+                if current_time < self.cooldown_end_time:
                     self.logger.debug("Detection in cooldown period, skipping event")
                     return
 
-                self.last_detection_time = current_time
+                # Reset warmup end time if current detection is not consecutive
+                # (i.e., after current warmup end time + 0.2 * warmup seconds):
+                if current_time > self.warmup_end_time + 0.2 * self.config.warmup_seconds:
+                    self.warmup_end_time = current_time + self.config.warmup_seconds
+
+                # Check warmup period
+                if current_time < self.warmup_end_time:
+                    self.logger.debug("Detection in warmup period, skipping event")
+                    return
+
+                self.cooldown_end_time = current_time + self.config.cooldown_seconds
                 self.detection_count += 1
 
                 self.logger.info(

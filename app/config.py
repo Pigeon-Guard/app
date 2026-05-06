@@ -31,6 +31,7 @@ class Config:
         self.reconnect_delay = _getenv_int('PGUARD_RECONNECT_DELAY', '3')
 
         # Detection
+        self.warmup_seconds = _getenv_int('PGUARD_WARMUP_SECONDS', '3')
         self.cooldown_seconds = _getenv_int('PGUARD_COOLDOWN_SECONDS', '30')
         self.save_detections = _getenv_bool('PGUARD_SAVE_DETECTIONS', 'true')
         self.detection_folder = os.getenv('PGUARD_DETECTION_FOLDER', 'detections')
