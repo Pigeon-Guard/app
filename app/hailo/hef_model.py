@@ -16,10 +16,11 @@ from hailo_platform import HEF, VDevice, InferVStreams, InputVStreamParams, Outp
 
 class HEFModel:
     def __init__(self, hef_path):
+        self.logger = logging.getLogger(__name__)
         self.classes_to_detect = [0]
         self.class_names = ['pigeon']
 
-        logging.info(f"Loading Hailo model from {hef_path}")
+        self.logger.info(f"Loading Hailo model from {hef_path}")
         
         # Load HEF
         self.hef = HEF(hef_path)
@@ -244,10 +245,10 @@ class HEFModel:
                             })
                 
                 else:
-                    logging.debug(f"Unexpected output type: {type(output_data)}")
+                    self.logger.debug(f"Unexpected output type: {type(output_data)}")
             
             except Exception as e:
-                logging.error(f"Error processing output '{output_name}': {e}")
+                self.logger.error(f"Error processing output '{output_name}': {e}")
                 import traceback
                 traceback.print_exc()
                 continue
@@ -285,7 +286,7 @@ class HEFModel:
             return detections
             
         except Exception as e:
-            logging.error(f"Hailo inference error: {e}")
+            self.logger.error(f"Hailo inference error: {e}")
             import traceback
             traceback.print_exc()
             return []

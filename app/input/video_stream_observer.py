@@ -83,7 +83,7 @@ class VideoStreamObserver:
                 self.frame_count += 1
 
                 # Skip frames for performance
-                if self.frame_count % self.config.frame_skip != 0:
+                if self.config.frame_skip and self.frame_count % self.config.frame_skip != 0:
                     continue
 
                 # Emit frame event

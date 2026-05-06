@@ -40,39 +40,9 @@ class Detector:
             self.logger.error(f"Failed to load model: {e}")
             raise
 
-    # def _preprocess_frame(self, frame):
-    #     """Preprocess frame for model input"""
-    #     try:
-    #         # Resize frame
-    #         frame_resized = cv2.resize(frame, (self.config.input_width, self.config.input_height))
-    #
-    #         # Convert BGR to RGB if needed
-    #         if self.config.bgr_to_rgb:
-    #             frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
-    #         else:
-    #             frame_rgb = frame_resized
-    #
-    #         # Normalize if needed
-    #         if self.config.normalize:
-    #             frame_normalized = frame_rgb.astype(np.float32) / 255.0
-    #         else:
-    #             frame_normalized = frame_rgb.astype(np.float32)
-    #
-    #         return frame_normalized
-    #
-    #     except Exception as e:
-    #         self.logger.error(f"Frame preprocessing error: {e}")
-    #         return None
-
     async def _on_frame(self, event: FrameEvent):
         """Handle incoming frame events"""
         try:
-            # TODO: Check if we need any preprocessing at all
-            # Preprocess frame
-            # frame_preprocessed = self._preprocess_frame(event.frame)
-            # if frame_preprocessed is None:
-            #     return
-
             # Run detection
             detection = await self.detect(event.frame, event.frame_number, save_image=self.config.save_detections)
 
@@ -80,9 +50,8 @@ class Detector:
                 current_time = time.time()
 
                 # Check cooldown period
-                if current_time - self.last_detection_time < self.config.cooldown_period:
-                    if self.config.debug_mode:
-                        self.logger.debug("Detection in cooldown period, skipping event")
+                if current_time - self.last_detection_time < self.config.cooldown_seconds:
+                    self.logger.debug("Detection in cooldown period, skipping event")
                     return
 
                 self.last_detection_time = current_time
@@ -135,8 +104,7 @@ class Detector:
 
             is_pigeon = confidence > self.config.confidence_threshold
 
-            if self.config.debug_mode:
-                self.logger.debug(f"Detection confidence: {confidence:.4f}, threshold: {self.config.confidence_threshold}")
+            self.logger.debug(f"Detection confidence: {confidence:.4f}, threshold: {self.config.confidence_threshold}")
 
             detection_event = None
             if is_pigeon:
