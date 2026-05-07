@@ -88,7 +88,7 @@ class TestDetector(unittest.IsolatedAsyncioTestCase):
             timestamp=datetime.now()
         )
 
-        self.config.warmup_seconds = 1
+        self.config.warmup_seconds = 2
         self.config.cooldown_seconds = 0
         sim_detection_count = 6
 
@@ -104,8 +104,8 @@ class TestDetector(unittest.IsolatedAsyncioTestCase):
                     await detector._on_frame(frame_event)
 
             self.assertEqual(sim_detection_count, mock_detect.call_count)
-            self.assertEqual(3, detector.detection_count)
-            self.assertEqual(3, self.event_bus.publish.call_count)
+            self.assertEqual(2, detector.detection_count)
+            self.assertEqual(2, self.event_bus.publish.call_count)
 
     @patch.object(Detector, "_load_model")
     async def test_publishes_event_for_each_first_detection_after_cooldown(self, mock_method):
@@ -182,5 +182,5 @@ class TestDetector(unittest.IsolatedAsyncioTestCase):
                     await detector._on_frame(frame_event)
 
             self.assertEqual(sim_detection_count, mock_detect.call_count)
-            self.assertEqual(2, detector.detection_count)
-            self.assertEqual(2, self.event_bus.publish.call_count)
+            self.assertEqual(3, detector.detection_count)
+            self.assertEqual(3, self.event_bus.publish.call_count)

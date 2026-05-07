@@ -14,7 +14,6 @@ class Detector:
         self.logger = logging.getLogger(__name__)
         self.model = None
         self.cooldown_end_time = 0
-        self.warmup_start_time = 0
         self.warmup_end_time = 0
         self.detection_count = 0
 
@@ -56,22 +55,19 @@ class Detector:
                     self.logger.debug("Detection in cooldown period, skipping event")
                     return
 
-                # Check warmup period
-                if current_time < self.warmup_end_time:
-                    self.logger.debug("Consecutive detection in warmup period, skipping event")
-                    return
-
-                # Reset warmup end time if current detection is not consecutive
                 if self.config.warmup_seconds > 0:
-                    self.warmup_start_time = current_time
-
-                    if self.warmup_end_time < current_time:
-                        self.warmup_end_time = self.warmup_start_time + self.config.warmup_seconds
-
-                    if self.config.warmup_seconds <= self.warmup_end_time - self.warmup_start_time:
-                        self.logger.debug("New detection starting warmup period, skipping event")
+                    # Check warmup period
+                    if current_time < self.warmup_end_time:
+                        self.logger.debug("Consecutive detection in warmup period, skipping event")
                         return
 
+                    # Reset warmup end time if current detection is not consecutive
+                    if self.warmup_end_time < current_time - self.config.warmup_seconds:
+                        self.logger.debug("New detection starting warmup period, skipping event")
+                        self.warmup_end_time = current_time + self.config.warmup_seconds
+                        return
+
+                self.warmup_end_time = current_time + self.config.warmup_seconds
                 self.cooldown_end_time = current_time + self.config.cooldown_seconds
                 self.detection_count += 1
 
