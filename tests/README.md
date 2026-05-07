@@ -31,6 +31,12 @@ Unit tests for the Pigeon Guard detection system.
   - Error handling
   - Message formatting
 
+- **test_detector.py**: Tests for detector
+  - Avoid events during warmup period
+  - Avoid events during cooldown period
+  - Fire event for each detection in case warmup and cooldown are deactivated
+  - Figure out whether to fire an event for a detection while warmmup and cooldown are active
+
 ## Running Tests
 
 Run all tests:

@@ -1,8 +1,7 @@
 """Unit tests for VideoStreamObserver"""
 import unittest
 import asyncio
-from unittest.mock import Mock, patch, MagicMock, call
-from datetime import datetime
+from unittest.mock import patch, MagicMock
 import numpy as np
 
 from app.event import EventBus, FrameEvent

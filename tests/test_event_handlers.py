@@ -3,9 +3,8 @@ import unittest
 import asyncio
 import tempfile
 import os
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch
 from datetime import datetime
-from pathlib import Path
 import numpy as np
 
 from app.event import EventBus, DetectionEvent

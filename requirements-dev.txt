@@ -28,6 +28,8 @@ fonttools==4.62.1
     # via
     #   -r requirements-prod.txt
     #   matplotlib
+freezegun==1.5.5
+    # via -r requirements-dev.in
 fsspec==2026.4.0
     # via
     #   -r requirements-prod.txt
@@ -112,6 +114,7 @@ pytest==9.0.3
 python-dateutil==2.9.0.post0
     # via
     #   -r requirements-prod.txt
+    #   freezegun
     #   matplotlib
 pyyaml==6.0.3
     # via
