@@ -33,7 +33,7 @@ Then edit `.env` with your settings. See `.env.example` for all available option
 - [Install required software packages for the AI HAT+](https://www.raspberrypi.com/documentation/computers/ai.html)
 - [Install Docker on your Raspberry Pi 5](https://docs.docker.com/engine/install/debian/)
 
-**Detection on single image**
+**Detection on local image**
 
 ```
 docker run --rm \
@@ -44,7 +44,18 @@ docker run --rm \
     ghcr.io/pigeon-guard/app:latest-slim --image /data/test-image.jpg
 ```
 
-**Continuous detection in video stream**
+**Detection on local video file**
+
+```
+docker run --rm \
+    --device /dev/hailo0:/dev/hailo0 \
+    -v $(pwd)/.env.hailo:/app/.env \
+    -v $(pwd)/models:/app/models \
+    -v $(pwd)/data:/data \
+    ghcr.io/pigeon-guard/app:latest-slim --video /data/test-video.mp4 [--video-save /data/test-video-output.mp4]
+```
+
+**Continuous detection in video stream over the network**
 
 ```
 docker run -d --restart always --name pguard \
@@ -58,7 +69,7 @@ docker run -d --restart always --name pguard \
 
 ## Other Systems
 
-**Detection on single image**
+**Detection on local image**
 
 ```
 docker run --rm \
@@ -68,7 +79,17 @@ docker run --rm \
     ghcr.io/pigeon-guard/app:latest --image /data/test-image.jpg
 ```
 
-**Continuous detection in video stream**
+**Detection on local video file**
+
+```
+docker run --rm \
+    -v $(pwd)/.env:/app/.env \
+    -v $(pwd)/models:/app/models \
+    -v $HOME/Downloads:/data \
+    ghcr.io/pigeon-guard/app:latest --video /data/test-video.mp4 [--video-save /data/test-video-output.mp4]
+```
+
+**Continuous detection in video stream over the network**
 
 ```
 docker run -d --restart always --name pguard \
