@@ -87,6 +87,70 @@ async def run_image_detection(app: Application, image_path: str):
     else:
         print(f"✗ No pigeon detected")
 
+async def run_video_detection(app: Application, video_path: str, out_path: str = None):
+    """Run detection on a single image"""
+    logger = logging.getLogger(__name__)
+
+    # Load Video
+    if not Path(video_path).exists():
+        logger.error(f"Video file not found: {video_path}")
+        print(f"Error: Video file not found: {video_path}")
+        return
+
+    cap = cv2.VideoCapture(video_path)
+
+    if not cap.isOpened():
+        raise RuntimeError(f"Could not open video: {video_path}")
+
+    # get video properties
+    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    size = (width, height)
+
+    quit_delay_ms = max(1, int(1000 / fps)) if fps > 0 else 33
+    video_name = os.path.basename(video_path)
+
+    # FourCC and filename extension: use mp4v for .mp4 (widely supported)
+    video_out = None
+    if out_path:
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        video_out = cv2.VideoWriter(out_path, fourcc, fps, size, True)
+        if not video_out.isOpened():
+            cap.release()
+            raise RuntimeError("Cannot open VideoWriter (check codec and output path)")
+
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break  # end of video
+
+            # Run detection
+            detection = await app.detect(frame)
+
+            if detection:
+                print(f"✓ Pigeon detected with {detection.confidence:.2%} confidence")
+                frame = detection.frame # contains bounding box, if enabled
+
+            else:
+                print(f"✗ No pigeon detected")
+
+            cv2.imshow(video_name, frame)
+            if video_out:
+                video_out.write(frame)
+
+            # press q to quit
+            if cv2.waitKey(quit_delay_ms) & 0xFF == ord("q"):
+                break
+
+    finally:
+        cap.release()
+        if video_out:
+            video_out.release()
+        cv2.destroyAllWindows()
+
+
 
 if __name__ == "__main__":
     import argparse
@@ -95,6 +159,8 @@ if __name__ == "__main__":
     parser.add_argument("--env-file", default=".env", help="Environment file path (default: .env)")
     parser.add_argument("--daemon", action="store_true", help="Run as daemon")
     parser.add_argument("--image", help="Run detection on a single image file")
+    parser.add_argument("--video", help="Run detection on a single video file")
+    parser.add_argument("--video-save", help="Path to save the video output")
 
     args = parser.parse_args()
 
@@ -108,6 +174,8 @@ if __name__ == "__main__":
     try:
         if args.image:
             asyncio.run(run_image_detection(app, args.image))
+        elif args.video:
+            asyncio.run(run_video_detection(app, args.video, args.video_save))
         elif args.daemon:
             asyncio.run(run_daemon(app))
         else:

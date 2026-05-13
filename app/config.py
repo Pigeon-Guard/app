@@ -33,6 +33,7 @@ class Config:
         # Detection
         self.warmup_seconds = _getenv_int('PGUARD_WARMUP_SECONDS', '3')
         self.cooldown_seconds = _getenv_int('PGUARD_COOLDOWN_SECONDS', '30')
+        self.draw_bounding_box = _getenv_bool('PGUARD_DRAW_BOUNDING_BOX', 'false')
         self.save_detections = _getenv_bool('PGUARD_SAVE_DETECTIONS', 'true')
         self.detection_folder = os.getenv('PGUARD_DETECTION_FOLDER', 'detections')
         self.image_format = os.getenv('PGUARD_IMAGE_FORMAT', 'jpg')

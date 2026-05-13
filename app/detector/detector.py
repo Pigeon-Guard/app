@@ -1,6 +1,7 @@
 """Pigeon detection component"""
 import logging
 import time
+import cv2
 from datetime import datetime
 from typing import Optional
 from app.event import EventBus, FrameEvent, DetectionEvent
@@ -105,7 +106,7 @@ class Detector:
             if results and len(results):
                 result = results[0]
 
-                if result['bbox']:
+                if type(result) is dict and result['bbox']:
                     # Hailo yolov8n
                     confidence = result['confidence']
                     x, y, width, height = result['bbox']
@@ -124,6 +125,16 @@ class Detector:
             if is_pigeon:
                 timestamp = datetime.now()
 
+                if self.config.draw_bounding_box:
+                    x, y = int(x - width / 2), int(y - height / 2)
+                    width, height = int(width), int(height)
+
+                    frame = self._draw_bounding_box(
+                        frame,
+                        x, y, x + width, y + height,
+                        label=f"{confidence:.2%}"
+                    )
+
                 detection_event = DetectionEvent(
                     frame=frame,
                     confidence=confidence,
@@ -141,3 +152,65 @@ class Detector:
         except Exception as e:
             self.logger.error(f"Detection error: {e}")
             raise
+
+    def _draw_bounding_box(
+            self,
+            frame,
+            x1, y1, x2, y2,
+            label=None,
+            color=(0, 0, 255),  # BGR
+            box_thickness=2,
+            alpha=0.1,
+            font_scale=0.6,
+            text_thickness=1
+    ):
+        overlay = frame.copy()
+
+        # 1) semi-transparent filled box
+        cv2.rectangle(overlay, (x1, y1), (x2, y2), color, -1)
+
+        # blend overlay into original frame
+        frame = cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0)
+
+        # 2) solid border on top
+        cv2.rectangle(frame, (x1, y1), (x2, y2), color, box_thickness)
+
+        # 3) label background
+        if label:
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            (tw, th), baseline = cv2.getTextSize(label, font, font_scale, text_thickness)
+
+            pad = 4
+            label_x1 = x1
+            label_y2 = max(th + baseline + 2 * pad, y1)
+            label_y1 = label_y2 - (th + baseline + 2 * pad)
+            label_x2 = x1 + tw + 2 * pad
+
+            # if there is room, place label above the box; otherwise place inside
+            if y1 - (th + baseline + 2 * pad) >= 0:
+                label_y1 = y1 - (th + baseline + 2 * pad)
+                label_y2 = y1
+            else:
+                label_y1 = y1
+                label_y2 = y1 + th + baseline + 2 * pad
+
+            # slightly transparent label background too
+            overlay2 = frame.copy()
+            cv2.rectangle(overlay2, (label_x1, label_y1), (label_x2, label_y2), color, -1)
+            frame = cv2.addWeighted(overlay2, 0.75, frame, 0.25, 0)
+
+            # 4) label text
+            text_x = label_x1 + pad
+            text_y = label_y2 - baseline - pad
+            cv2.putText(
+                frame,
+                label,
+                (text_x, text_y),
+                font,
+                font_scale,
+                (255, 255, 255),
+                text_thickness,
+                cv2.LINE_AA
+            )
+
+        return frame
